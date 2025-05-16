@@ -213,7 +213,7 @@ def main():
     if len(sys.argv) > 1:
         if sys.argv[1] == 'cache_embeddings':
             # 预计算并缓存 embeddings
-            calculate_and_save_embeddings(data, '/data2/article_embeddings.json')
+            calculate_and_save_embeddings(data, 'data2/article_embeddings.json')
         
         elif sys.argv[1] == 'search':
             # 使用缓存的 embeddings 进行搜索
@@ -225,7 +225,7 @@ def main():
     else:
         # 原有的文档关系处理
         relations = find_related_documents(data)
-        save_document_relations(relations, '/data2/document_relations.json')
+        save_document_relations(relations, 'data2/document_relations.json')
     
     # 清理资源
     import gc
