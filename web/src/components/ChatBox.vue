@@ -89,7 +89,7 @@
 /* eslint-disable no-unused-vars */
 import { ref, watch, onMounted, computed } from 'vue';
 import { searchArticles } from '../api/search';
-import { parseArticle } from '@/utils/getArticle';
+import { parseArticle, getTextFromPdf } from '@/utils/getArticle';
 import { getAISummary } from '@/utils/aiSummary';
 import { API_KEYS } from '@/config/api';
 import { userStore } from '@/store/userStore';
@@ -184,13 +184,18 @@ const getArticleContent = async (article) => {
 // 获取单个论文内容
 const getPaperContent = async (paper) => {
   console.log(`开始获取论文: ${paper.paper_title}`);
+  const pdfUrl = paper.arxiv_url.replace('/abs/', '/pdf/');
+  console.log(`转换后的 PDF URL: ${pdfUrl} for paper: ${paper.paper_title}`);
+  
   try {
-    const content = await parseArticle(paper.arxiv_url);
-    console.log(`成功获取论文: ${paper.paper_title} (长度: ${content.length})`);
+    // 调用新的 getTextFromPdf 函数
+    console.log('开始获取论文内容:', pdfUrl);
+    const content = await getTextFromPdf(pdfUrl);
+    console.log(`getTextFromPdf 返回内容 (可能为提示信息或提取文本): ${content.substring(0, 10000)}...`); // 只打印部分内容以防过长
     return content;
   } catch (error) {
-    console.error(`获取论文内容失败:`, error);
-    return `Unable to retrieve paper content: ${error.message}`;
+    console.error(`调用 getTextFromPdf 失败 for paper "${paper.paper_title}" (URL: ${pdfUrl}):`, error);
+    return `无法检索论文 "${paper.paper_title}" 的内容: ${error.message}`;
   }
 };
 
@@ -226,7 +231,8 @@ const chatWithAI = async (userMessage) => {
     let hasReferences = false;
     
     // 如果有选中的文章，获取文章内容
-    if (selectedArticles.value.length > 0) {
+    console.log('selectedArticles', userStore.userAddList);
+    if (userStore.userAddList.length > 0) {
       try {
         // 更新loading消息
         messages.value[messages.value.length - 1].content = 'Retrieving article content...';
@@ -235,13 +241,13 @@ const chatWithAI = async (userMessage) => {
         referenceContent += "\n\nPlease answer my question based on the following article content:\n\n";
         
         // 获取每篇文章内容 - 确保顺序执行
-        for (let i = 0; i < selectedArticles.value.length; i++) {
-          const articleId = selectedArticles.value[i];
+        for (let i = 0; i < userStore.userAddList.length; i++) {
+          const articleId = userStore.userAddList[i].id;
           const article = userStore.userAddList.find(item => item.id === articleId);
           
           if (article) {
             // 更新加载消息显示当前处理的文章
-            messages.value[messages.value.length - 1].content = `Retrieving article content (${i+1}/${selectedArticles.value.length}): ${article.title}`;
+            messages.value[messages.value.length - 1].content = `Retrieving article content (${i+1}/${userStore.userAddList.length}): ${article.title}`;
             
             console.log(`开始获取第${i+1}篇文章: ${article.title}`);
             // 获取文章内容并等待完成
@@ -262,7 +268,8 @@ const chatWithAI = async (userMessage) => {
     }
     
     // 如果有选中的论文，获取论文内容
-    if (selectedPapers.value.length > 0) {
+    console.log('selectedPapers', userStore.userAddedPapers);
+    if (userStore.userAddedPapers.length > 0) {
       try {
         // 更新loading消息
         messages.value[messages.value.length - 1].content = 'Retrieving paper content...';
@@ -273,8 +280,8 @@ const chatWithAI = async (userMessage) => {
         }
         
         // 获取每篇论文内容 - 确保顺序执行
-        for (let i = 0; i < selectedPapers.value.length; i++) {
-          const paperUrl = selectedPapers.value[i];
+        for (let i = 0; i < userStore.userAddedPapers.length; i++) {
+          const paperUrl = userStore.userAddedPapers[i].arxiv_url;
           const paper = userStore.userAddedPapers.find(item => item.arxiv_url === paperUrl);
           
           if (paper) {

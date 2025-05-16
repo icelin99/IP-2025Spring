@@ -14,6 +14,7 @@
     "dom-parser": "^1.1.5",
     "marked": "^15.0.11",
     "node-fetch": "^3.3.2",
+    "pdfjs-dist": "^5.2.133",
     "puppeteer": "^24.8.2",
     "vue": "^3.2.13",
     "vue-markdown-render": "^2.2.1"
@@ -21,6 +22,10 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@babel/plugin-transform-class-properties": "^7.27.1",
+    "@babel/plugin-transform-class-static-block": "^7.27.1",
+    "@babel/plugin-transform-private-methods": "^7.27.1",
+    "@babel/plugin-transform-private-property-in-object": "^7.27.1",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
