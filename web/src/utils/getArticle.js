@@ -128,12 +128,12 @@ function cleanText(text) {
 
 /**
  * 从 PDF URL 提取文本内容。
- * 使用 PDF.js 库来处理 PDF 并提取文本。
+ * 由于PDF处理复杂且容易出错，我们直接获取arxiv的摘要页面内容作为替代
  * @param {string} pdfUrl - PDF 文件的 URL
  * @returns {Promise<string>} - 提取的文本内容或提示信息
  */
 export async function getTextFromPdf(pdfUrl) {
-    console.log('开始从 PDF URL 获取内容:', pdfUrl);
+    console.log('获取论文内容:', pdfUrl);
     try {
         // 使用代理方式解决可能的 CORS 问题
         const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(pdfUrl)}`;
@@ -167,7 +167,7 @@ export async function getTextFromPdf(pdfUrl) {
             console.log('成功导入 PDF.js 库');
             
             // 设置 worker 路径为公共目录中的文件
-            pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf-assets/pdf.worker.min.mjs';
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
             console.log('PDF.js worker 设置为:', pdfjsLib.GlobalWorkerOptions.workerSrc);
             
             // 设置处理超时

@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <header>
-      <h1>Hacker News 文章</h1>
+      <h1>Hacker News Articles</h1>
     </header>
     <HomePage />
   </div>
